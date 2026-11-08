@@ -4,7 +4,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -14,6 +16,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,10 +29,14 @@ public class MainActivity extends AppCompatActivity {
     SeekBar sb_j_green;
     SeekBar sb_j_blue;
     Button btn_j_save;
+    ListView lv_j_listOfColors;
     int redValue;
     int greenValue;
     int blueValue;
     ConstraintLayout cl_j_main;
+    CustomColor currentColor;
+    CustomColorAdapter cAdapter;
+    ArrayList<CustomColor> listOfColors;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,24 +58,31 @@ public class MainActivity extends AppCompatActivity {
         sb_j_green = findViewById(R.id.sb_v_green);
         sb_j_blue = findViewById(R.id.sb_v_blue);
         btn_j_save = findViewById(R.id.btn_v_save);
+        lv_j_listOfColors = findViewById(R.id.lv_v_listOfColors);
         cl_j_main = findViewById(R.id.main);
+
+        listOfColors = new ArrayList<>();
+
+        resetColor();
 
         saveButtonClickEvent();
         redChangeEvent();
         greenChangeEvent();
         blueChangeEvent();
-        tv_j_hex.setText(convertToHex(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress()));
+
+        cAdapter = new CustomColorAdapter(this, listOfColors);
+        lv_j_listOfColors.setAdapter(cAdapter);
+        setOnClickListenerForListView();
     }
 
     private void saveButtonClickEvent() {
         btn_j_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                redValue = sb_j_red.getProgress();
-                greenValue = sb_j_green.getProgress();
-                blueValue = sb_j_blue.getProgress();
+                listOfColors.add(currentColor);
                 Log.d("Color Values", "Red: " + redValue + ", Green: " + greenValue + ", Blue: " + blueValue);
-                int savedColor = Color.rgb(redValue, greenValue, blueValue);
+                cAdapter.notifyDataSetChanged();
+                resetColor();
             }
         });
     }
@@ -78,9 +93,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tv_j_red.setText("Red:  " + progress);
-                int currentColor = Color.rgb(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress());
-                cl_j_main.setBackgroundColor(currentColor);
-                tv_j_hex.setText(convertToHex(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress()));
+                currentColor = new CustomColor(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress());
+                cl_j_main.setBackgroundColor(currentColor.getColor());
+                tv_j_hex.setText("Hex Representation: " + currentColor.getHexValue());
+                if (currentColor.isDark())
+                {
+                    tv_j_red.setTextColor(Color.rgb(255,255,255));
+                    tv_j_green.setTextColor(Color.rgb(255,255,255));
+                    tv_j_blue.setTextColor(Color.rgb(255,255,255));
+                    tv_j_hex.setTextColor(Color.rgb(255,255,255));
+                }
+                else
+                {
+                    tv_j_red.setTextColor(Color.rgb(0,0,0));
+                    tv_j_green.setTextColor(Color.rgb(0,0,0));
+                    tv_j_blue.setTextColor(Color.rgb(0,0,0));
+                    tv_j_hex.setTextColor(Color.rgb(0,0,0));
+                }
             }
 
             @Override
@@ -101,9 +130,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tv_j_green.setText("Green:  " + progress);
-                int currentColor = Color.rgb(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress());
-                cl_j_main.setBackgroundColor(currentColor);
-                tv_j_hex.setText(convertToHex(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress()));
+                currentColor = new CustomColor(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress());
+                cl_j_main.setBackgroundColor(currentColor.getColor());
+                tv_j_hex.setText("Hex Representation: " + currentColor.getHexValue());
+                if (currentColor.isDark() == true)
+                {
+                    tv_j_red.setTextColor(Color.rgb(255,255,255));
+                    tv_j_green.setTextColor(Color.rgb(255,255,255));
+                    tv_j_blue.setTextColor(Color.rgb(255,255,255));
+                    tv_j_hex.setTextColor(Color.rgb(255,255,255));
+                }
+                else
+                {
+                    tv_j_red.setTextColor(Color.rgb(0,0,0));
+                    tv_j_green.setTextColor(Color.rgb(0,0,0));
+                    tv_j_blue.setTextColor(Color.rgb(0,0,0));
+                    tv_j_hex.setTextColor(Color.rgb(0,0,0));
+                }
             }
 
             @Override
@@ -124,9 +167,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 tv_j_blue.setText("Blue:  " + progress);
-                int currentColor = Color.rgb(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress());
-                cl_j_main.setBackgroundColor(currentColor);
-                tv_j_hex.setText(convertToHex(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress()));
+                currentColor = new CustomColor(sb_j_red.getProgress(), sb_j_green.getProgress(), sb_j_blue.getProgress());
+                cl_j_main.setBackgroundColor(currentColor.getColor());
+                tv_j_hex.setText("Hex Representation: " + currentColor.getHexValue());
+                if (currentColor.isDark() == true)
+                {
+                    tv_j_red.setTextColor(Color.rgb(255,255,255));
+                    tv_j_green.setTextColor(Color.rgb(255,255,255));
+                    tv_j_blue.setTextColor(Color.rgb(255,255,255));
+                    tv_j_hex.setTextColor(Color.rgb(255,255,255));
+                }
+                else
+                {
+                    tv_j_red.setTextColor(Color.rgb(0,0,0));
+                    tv_j_green.setTextColor(Color.rgb(0,0,0));
+                    tv_j_blue.setTextColor(Color.rgb(0,0,0));
+                    tv_j_hex.setTextColor(Color.rgb(0,0,0));
+                }
             }
 
             @Override
@@ -141,47 +198,46 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private String convertToHex(int red, int green, int blue)
+    private void resetColor()
     {
-        String hexVal;
-        int hexValOne = (red / 16);
-        int hexValTwo = (red % 16);
-        hexVal = hexValueString(hexValOne) + hexValueString(hexValTwo);
-        hexValOne = (green / 16);
-        hexValTwo = (green % 16);
-        hexVal += hexValueString(hexValOne) + hexValueString(hexValTwo);
-        hexValOne = (blue / 16);
-        hexValTwo = (blue % 16);
-        hexVal += hexValueString(hexValOne) + hexValueString(hexValTwo);
-        return hexVal;
+        redValue = 255;
+        greenValue = 255;
+        blueValue = 255;
+
+        sb_j_red.setProgress(redValue);
+        sb_j_green.setProgress(greenValue);
+        sb_j_blue.setProgress(blueValue);
+
+        currentColor = new CustomColor(redValue, greenValue, blueValue);
+
+        tv_j_red.setText("Red:  " + redValue);
+        tv_j_green.setText("Green:  " + greenValue);
+        tv_j_blue.setText("Blue:  " + blueValue);
+        tv_j_hex.setText("Hex Representation: " + currentColor.getHexValue());
+        cl_j_main.setBackgroundColor(currentColor.getColor());
     }
 
-    private String hexValueString(int value)
+    private void setOnClickListenerForListView()
     {
-        if (value == 10)
-        {
-            return "A";
-        }
-        else if (value == 11)
-        {
-            return "B";
-        }
-        else if (value == 12)
-        {
-            return "C";
-        }
-        else if (value == 13)
-        {
-            return "D";
-        }
-        else if (value == 14)
-        {
-            return "E";
-        }
-        else if (value == 15)
-        {
-            return "F";
-        }
-        else return Integer.toString(value);
+        lv_j_listOfColors.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                currentColor = listOfColors.get(position);
+                setColor(currentColor);
+            }
+        });
+    }
+
+    private void setColor(CustomColor color)
+    {
+        sb_j_red.setProgress(color.getRedValue());
+        sb_j_green.setProgress(color.getGreenValue());
+        sb_j_blue.setProgress(color.getBlueValue());
+
+        tv_j_red.setText("Red:  " + color.getRedValue());
+        tv_j_green.setText("Green:  " + color.getGreenValue());
+        tv_j_blue.setText("Blue:  " + color.getBlueValue());
+        tv_j_hex.setText("Hex Representation: " + color.getHexValue());
+        cl_j_main.setBackgroundColor(color.getColor());
     }
 }
